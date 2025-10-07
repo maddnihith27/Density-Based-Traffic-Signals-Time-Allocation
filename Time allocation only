@@ -1,0 +1,99 @@
+#include <bits/stdc++.h>
+// #include <iostream>
+using namespace std;
+class density
+{
+    float cl[3];
+    float ref_time = 90; // unit :-seconds
+    //float red, green;    // time for green and red signals
+    float sum = 0;
+
+protected:
+    void get_count()
+    {
+        /*Here all the counts are with respect to a fixed area,the counts are indirectly the densities
+         Density of vehicles = no of vehicles / area covered by them, units of area are meters
+         units of density of vehicles is meters^-1*/
+        cout << "Enter the Density of vehicles in the 1st lane :";
+        cin >> cl[0];
+        cout << "\nEnter the Density of vehicles in the 2nd lane :";
+        cin >> cl[1];
+        cout << "\nEnter the Density of vehicles in the 3rd lane :";
+        cin >> cl[2];
+        cout << "\nEnter the Density of vehicles in the 4th lane :";
+        cin >> cl[3];
+    }
+    void allocation()
+    {
+        // int sum = (cl[0] + cl[1] + cl[2] + cl[3]);
+        for (int i = 0; i < 4; i++)
+        {
+            sum += cl[i];
+        }
+        cout << "\n\nTime allocation of signal for traffic :";
+        if ((cl[0] == cl[1]) && (cl[1] == cl[2]) && (cl[2] == cl[3]) && (cl[3] == cl[0]))
+        {
+
+            cout << "\nAll the lanes are having same density ,the time for green signal is same for all!!";
+            cout << "\nAnd the time allocated for green signal in all lanes is : " << ref_time << " seconds";
+        }
+        else
+        {
+            // time is allocated to the lanes accordingly w.r.t their densities!!
+            for (int i = 0; i < 4; i++)
+            {
+                float alloc_time = ((cl[i] / sum) * 360);
+                if (i == 0)
+                {
+                    float sum1 = ((cl[1] + cl[2] + cl[3]) / sum) * 360;
+                    cout << "\n\nDuration of green signal for " << i + 1 << " lane is : " << alloc_time << "seconds";
+                    cout << "\nDuration of red signal for " << i + 1 << " lane , after the flow : " << sum1 << " seconds";
+                }
+                else if (i == 1)
+                {
+                    float sum2_bef = ((cl[0] / sum) * 360);
+                    float sum2_aftr = ((cl[2] + cl[3]) / sum) * 360;
+                    cout << "\n\nDuration of red signal before the flow : " << sum2_bef << " seconds";
+                    cout << "\nDuration of green signal for " << i + 1 << " lane is : " << alloc_time << "seconds";
+                    cout << "\nDuration of red signal for " << i + 1 << " lane , after the flow : " << sum2_aftr << " seconds";
+                }
+                else if (i == 2)
+                {
+                    float sum3_bef = ((cl[0] + cl[1]) / sum) * 360;
+                    float sum3_aftr = (cl[3] / sum) * 360;
+                    cout << "\n\nDuration of red signal before the flow : " << sum3_bef << " seconds";
+                    cout << "\nDuration of green signal for " << i + 1 << " lane is : " << alloc_time << "seconds";
+                    cout << "\nDuration of red signal for " << i + 1 << " lane , after the flow : " << sum3_aftr << " seconds";
+                }
+                else if (i == 3)
+                {
+                    float sum4_bef = ((cl[0] + cl[1] + cl[2]) / sum) * 360;
+                    cout << "\n\nDuration of red signal before the flow : " << sum4_bef << " seconds";
+                    cout << "\nDuration of green signal for " << i + 1 << " lane is : " << alloc_time << "seconds" << endl;
+                }
+            }
+        }
+    }
+};
+class traffic : public density
+{
+public:
+    void traffic_signal()
+    {
+        int n;
+        cout << "Enter no. of cycles to observe : ";
+        cin >> n;
+        for (int i = 1; i <= n; i++)
+        {
+            cout << "\ncycle " << i << endl;
+            get_count();
+            allocation();
+        }
+    }
+};
+int main()
+{
+    traffic mini_project;
+    mini_project.traffic_signal();
+    return 0;
+}
