@@ -1,0 +1,180 @@
+import RPi.GPIO as GPIO #Required libraries
+import time
+
+#DECLARATIONS
+GPIO.setmode(GPIO.BOARD)
+
+#Lane-1
+GPIO.setup(3,GPIO.OUT)#red
+GPIO.setup(5,GPIO.OUT)#yellow
+GPIO.setup(7,GPIO.OUT)#green #gnd(9)
+
+#Lane-2
+GPIO.setup(11,GPIO.OUT)
+GPIO.setup(13,GPIO.OUT)
+GPIO.setup(15,GPIO.OUT)  #gnd(14)
+
+#Lane-3
+GPIO.setup(19,GPIO.OUT)
+GPIO.setup(21,GPIO.OUT)
+GPIO.setup(23,GPIO.OUT) #gnd(25)
+
+#Lane-4
+GPIO.setup(29,GPIO.OUT)
+GPIO.setup(30,GPIO.OUT)
+GPIO.setup(31,GPIO.OUT)  #gnd(39)
+
+#Pedestrians
+GPIO.setup(8,GPIO.OUT)    #ground points left are 6,14,30,34.
+GPIO.setup(10,GPIO.OUT)
+
+GPIO.setup(16,GPIO.OUT)
+GPIO.setup(18,GPIO.OUT)
+
+GPIO.setup(22,GPIO.OUT)
+GPIO.setup(24,GPIO.OUT)
+
+GPIO.setup(36,GPIO.OUT)
+GPIO.setup(38,GPIO.OUT)
+
+#INITIALIZATIONS
+#For vehicles
+GPIO.output(3,False)
+GPIO.output(5,False)
+GPIO.output(7,False)
+
+GPIO.output(11,False)
+GPIO.output(13,False)
+GPIO.output(15,False)
+
+GPIO.output(19,False)
+GPIO.output(21,False)
+GPIO.output(23,False)
+
+GPIO.output(29,False)
+GPIO.output(31,False)
+GPIO.output(33,False)
+
+#For pedestrians
+GPIO.output(8,False)
+GPIO.output(10,False)
+
+GPIO.output(16,False)
+GPIO.output(18,False)
+
+GPIO.output(22,False)
+GPIO.output(24,False)
+
+GPIO.output(36,False)
+GPIO.output(38,False)
+
+
+cl = [0]*4
+ref_time = 85
+ytime = 5
+sum_of_cl = 0
+alloc_time=[0]*4
+
+#1
+def led_control(alloc_time):
+    GPIO.output(7,True) #grn1 on
+    GPIO.output(11,True)#rd2 on 
+    GPIO.output(19,True)#rd3 on
+    GPIO.output(29,True)#rd4 on
+    GPIO.output(10,True)
+    GPIO.output(18,True)
+    GPIO.output(22,True)
+    GPIO.output(26,True)
+    time.sleep(alloc_time[0])
+
+    GPIO.output(7,False)#grn1 off
+    GPIO.output(5,True)#yellow1 on
+    time.sleep(5)
+    GPIO.output(5,False)#yellow1 off
+    GPIO.output(3,True) #rd1
+    GPIO.output(11,False)#rd2
+    GPIO.output(15,True) #green2 on
+    GPIO.output(10,False)
+    GPIO.output(8,True)
+    GPIO.output(22,False)
+    GPIO.output(24,True)
+    time.sleep(alloc_time[1])
+
+    GPIO.output(15,False) #green2 off
+    GPIO.output(13,True) #yellow2 on
+    time.sleep(5)
+    GPIO.output(13,False) #yellow2 off
+    GPIO.output(11,True)#rd2
+    GPIO.output(19,False) # red3 off
+    GPIO.output(23,True) #green3 on
+    GPIO.output(16,True)
+    GPIO.output(18,False)
+    GPIO.output(26,False)
+    GPIO.output(28,True)
+    time.sleep(alloc_time[2])
+
+
+    GPIO.output(23,False) #green3 off
+    GPIO.output(21,True) #yellow3 on
+    time.sleep(5)
+    GPIO.output(21,False) #yellow3 off
+    GPIO.output(19,True) # red3 on
+    GPIO.output(29,False) #red4 off
+    GPIO.output(33,True) #green4 on
+    GPIO.output(24,False)
+    GPIO.output(22,True)
+    GPIO.output(8,False)
+    GPIO.output(10,True)
+    time.sleep(alloc_time[3])
+
+    GPIO.output(33,False) #green4 off
+    GPIO.output(31,True) #yellow4 on
+    GPIO.output(21,True) #y3 on
+    GPIO.output(13,True) #y2 on
+    GPIO.output(5,True) #y1 on
+    GPIO.output(8,True)
+    GPIO.output(10,False)
+    GPIO.output(26,True)
+    GPIO.output(28,False)
+
+    time.sleep(5)
+    GPIO.output(31,False) #yellow4 off
+    GPIO.output(21,False) #y3 off
+    GPIO.output(13,False) #y2 off
+    GPIO.output(5,False) #y1 off
+    GPIO.output(8,False)
+    GPIO.output(16,False)
+    GPIO.output(22,False)
+    GPIO.output(26,False)
+    GPIO.cleanup()
+
+#2
+def _allocation():
+        sum_of_cl = sum(cl)
+        print("\n\nTime allocation of signal for traffic :\n")
+        if ((cl[0] == cl[1]) and (cl[1] == cl[2]) and (cl[2] == cl[3]) and (cl[3] == cl[0])):
+            print("Duration of green signal is same for all lanes i.e., "+ str(ref_time) + "seconds")
+
+
+        else:
+            for i in range(4):
+                alloc_time[i]= ((cl[i] / sum_of_cl) * 340)
+                print("Duration of green signal for ", i + 1, " lane is : ", alloc_time[i], "seconds")                 
+     
+     led_control(alloc_time)               
+
+#3
+def _get_count():
+        for i in range(4):
+            cl[i] = int(input("Enter the density of vehicles in lane "+ str(i + 1) + " : "))
+
+#4
+def traffic_signal(): #nesting of functions
+    n = int(input("Enter the number of cycles to be observed: "))
+    for i in range(n):
+        print("\ncycle ", i + 1)
+        _get_count()
+        _allocation()
+
+#main function
+traffic_signal()
